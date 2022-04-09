@@ -2,7 +2,7 @@ import numpy as np
 from scipy.stats import norm
 
 
-def black_scholes(t=40, r=4.00, v=32.00, K=60, St=62, type='c'):
+def black_scholes(t=40, r=4.00, v=32.00, K=60, St=62, type='c', years_base = 252, per_cent = False):
     """
     Parameters:
     K : Excercise Price
@@ -13,6 +13,15 @@ def black_scholes(t=40, r=4.00, v=32.00, K=60, St=62, type='c'):
     type: Type of option 'c' for call 'p' for put
     default: 'c'
     """
+    #Change the base between 365 and 252 (brazilian case)
+    yb = years_base
+    
+    #if a decimal number is prefered
+    if per_cent:
+        pc = 100
+    else:
+        pc = 1
+     
     # if type = 'c' or 'C' call option else put option
     try:
         type=type.lower()
@@ -26,21 +35,21 @@ def black_scholes(t=40, r=4.00, v=32.00, K=60, St=62, type='c'):
     #Check time 
     try:
         #convert time in days to years
-        t=t/365
+        t=t/yb
     except:
         raise TypeError("Enter numerical value for time")
 
     #Check risk free rate 
     try:
         #convert percentage to decimal
-        r=r/100
+        r=r/pc
     except:
         raise TypeError("Enter numerical value for risk free rate")
     
     #Check volatility
     try:
         #convert percentage to decimal
-        v=v/100
+        v=v/pc
     except:
         raise TypeError("Enter numerical value for volatility")  
 
@@ -87,11 +96,11 @@ def black_scholes(t=40, r=4.00, v=32.00, K=60, St=62, type='c'):
     #CALCULATE OPTION GREEKS
     if type=='c':
         delta=N_d1
-        theta=(-((St*v*np.exp(-np.power(d1,2)/2))/(np.sqrt(8*np.pi*t)))-(N_d2*r*K*np.exp(-r*t)))/365
+        theta=(-((St*v*np.exp(-np.power(d1,2)/2))/(np.sqrt(8*np.pi*t)))-(N_d2*r*K*np.exp(-r*t)))/yb
         rho=t*K*N_d2*np.exp(-r*t)/100
     else:
         delta=-N_d1
-        theta=(-((St*v*np.exp(-np.power(d1,2)/2))/(np.sqrt(8*np.pi*t)))+(N_d2*r*K*np.exp(-r*t)))/365
+        theta=(-((St*v*np.exp(-np.power(d1,2)/2))/(np.sqrt(8*np.pi*t)))+(N_d2*r*K*np.exp(-r*t)))/yb
         rho=-t*K*N_d2*np.exp(-r*t)/100
 
     gamma=(np.exp(-np.power(d1,2)/2))/(St*v*np.sqrt(2*np.pi*t))
